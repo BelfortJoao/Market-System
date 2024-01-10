@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block title %}Home{% endblock %}
+
+{% block content %}
+    <a href="{{ url_for('logout') }}">
+        <button class="btn btn-danger btn-lg px-5">Sair</button>
+    </a>
+    <a href="{{ url_for('search_client') }}">
+        <button class="btn btn-primary btn-lg px-5">Lista Clientes</button>
+    </a>
+    <a href="{{ url_for('search_product') }}">
+        <button class="btn btn-primary btn-lg px-5">Estoque</button>
+    </a>
+    <a href="{{ url_for('sale_page1') }}">
+        <button class="btn btn-primary btn-lg px-5">Registrar Compra</button>
+    </a>
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12">
+                <h1>Home</h1>
+                <p>Home</p>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+```
