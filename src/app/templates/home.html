@@ -3,25 +3,34 @@
 {% block title %}Home{% endblock %}
 
 {% block content %}
-    <a href="{{ url_for('logout') }}">
-        <button class="btn btn-danger btn-lg px-5">Sair</button>
-    </a>
-    <a href="{{ url_for('search_client') }}">
-        <button class="btn btn-primary btn-lg px-5">Lista Clientes</button>
-    </a>
-    <a href="{{ url_for('search_product') }}">
-        <button class="btn btn-primary btn-lg px-5">Estoque</button>
-    </a>
-    <a href="{{ url_for('sale_page1') }}">
-        <button class="btn btn-primary btn-lg px-5">Registrar Compra</button>
-    </a>
-    <div class="container">
+    <div style="margin-top: 30px;"></div> <!-- Espaçamento adicional -->
+
+        <a href="{{ url_for('logout') }}">
+            <button class="btn btn-danger btn-lg px-5">Sair</button>
+        </a>
+    <div style="margin-top: 100px;"></div> <!-- Espaçamento adicional -->
+
+    <div class="container text-center mt-3" id="central-buttons">
         <div class="row">
-            <div class="col-md-12">
-                <h1>Home</h1>
-                <p>Home</p>
+            <div class="col-md-4">
+                <a href="{{ url_for('search_client') }}">
+                    <button class="btn btn-primary btn-lg px-5">Lista de Clientes</button>
+                </a>
+            </div>
+            <div style="margin-top: 30px;"></div> <!-- Espaçamento adicional -->
+            <div class="col-md-4">
+                <a href="{{ url_for('search_product') }}">
+                    <button class="btn btn-primary btn-lg px-5">Estoque de Produtos</button>
+                </a>
+            </div>
+            <div style="margin-top: 30px;"></div> <!-- Espaçamento adicional -->
+            <div class="col-md-4">
+                <a href="{{ url_for('sale_page1') }}">
+                    <button class="btn btn-primary btn-lg px-5">Registrar Compra</button>
+                </a>
             </div>
         </div>
     </div>
 {% endblock %}
+
 ```

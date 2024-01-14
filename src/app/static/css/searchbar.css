@@ -43,12 +43,11 @@ body {
   outline: none;
 }
 
-#searchQuerySubmit:hover {
+#submit:hover {
   cursor: pointer;
 }
 
-.searchBar input,
-.searchBar button {
+.searchBar input{
     display: inline-block;
 }
 .searchBar form {

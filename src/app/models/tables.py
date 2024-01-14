@@ -44,6 +44,7 @@ class Product(db.Model):
     price = db.Column(db.Float)
     code = db.Column(db.String(80), unique=True)
     quantity = db.Column(db.Integer, default=0)
+    description = db.Column(db.String(120))
 
     def __init__(self, name, price, code, quantity):
         """Initialize a new product."""
@@ -82,6 +83,7 @@ class Kart(db.Model):
     total = db.Column(db.Float)
     client_id = db.Column(db.Integer, db.ForeignKey('client.id'))
     client = db.relationship('Client', backref='karts')
+    confirmed = db.Column(db.Boolean, default=False)
 
     def __init__(self, client_id, total):
         """Initialize a new shopping cart."""

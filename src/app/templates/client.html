@@ -2,8 +2,72 @@
 
 {% block title %}client{% endblock %}
 {% block content%}
-<h1>{{cliente.name}}</h1>
-<h2>{{cliente.cpf}}</h2>
-<h2>{{cliente.email}}</h2>
-<h2>{{cliente.address}}</h2>
+<div class="container">
+    <button class="btn btn-primary" onclick="window.location.href='/search_client'">Voltar</button>
+    {% if cliente %}
+    <button class="btn btn-primary" onclick="window.location.href='/delete_client/{{ cliente.name }}'">Deletar Cliente</button>
+    <!-- Formulário com placeholders -->
+    <form id="clientAtt" action="/client/{{cliente.name}}" method="POST">
+        {{ form.csrf_token }}
+        <div class="mb-3">
+            <label class="form-label">Nome: {{cliente.name}}</label>
+              {{ form.clientName(class="form-control form-control-lg", placeholder="novo nome") }}
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">CPF: {{cliente.cpf}}</label>
+              {{ form.clientCPF(class="form-control form-control-lg", placeholder="novo cpf") }}
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">e-mail: {{cliente.email}}</label>
+              {{ form.clientEmail(class="form-control form-control-lg", placeholder="novo email") }}
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Endereço: {{cliente.address}}</label>
+                {{ form.clientAddress(class="form-control form-control-lg", placeholder="novo endereço") }}
+        </div>
+
+        {{ form.submit(class="btn btn-primary")}}
+    </form>
+    <div class="mb-3">
+        <h1>Carros: </h1>
+        <ul>
+            {% for carro in carros %}
+            <li><a href="{{url_for('edit_car', car_id=carro.id)}}">{{carro.name}}</a></li>
+            {% endfor %}
+        </ul>
+
+        <form id="carAdd" action="/client/{{cliente.name}}/add_car" method="POST">
+        {{ car_form.csrf_token }}
+        <div class="mb-3">
+            <label class="form-label">Modelo:</label>
+            {{ car_form.modelo(class="form-control form-control-lg", placeholder="Modelo do carro") }}
+        </div>
+        {{ car_form.submit(class="btn btn-primary") }}
+        </form>
+    </div>
+    <div class="mb-3">
+        <h1>Telefones:</h1>
+        <ul>
+            {% for phone in phones %}
+            <li><a href="{{url_for('edit_phone', phone_id=phone.id)}}">{{phone.number}}</a></li>
+            {% endfor %}
+        </ul>
+
+        <form id="phoneAdd" action="/client/{{cliente.name}}/add_phone" method="POST">
+        {{ phone_form.csrf_token }}
+            <div class="mb-3">
+                <label class="form-label">Número:</label>
+                {{ phone_form.number(class="form-control form-control-lg", placeholder="Número do telefone") }}
+            <div>
+            {{ phone_form.submit(class="btn btn-primary") }}
+    </div>
+
+    {% else %}
+    <h1>Cliente não encontrado</h1>
+    {% endif %}
+</div>
+
 {%endblock%}

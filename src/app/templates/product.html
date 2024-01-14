@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block title %}Atualizar Produto{% endblock %}
+
+{% block content %}
+<div class="container">
+    <button class="btn btn-primary" onclick="window.location.href='/search_product'">Voltar</button>
+    {% if produto %}
+    <button class="btn btn-primary" onclick="window.location.href='/delete_product/{{ produto.name }}'">Deletar Produto</button>
+    <form id="productAtt" action="/product/{{ produto.name}}" method="POST">
+        {{ form.csrf_token }}
+        <div class="mb-3">
+            <label for="productName" class="form-label">Nome Atual: {{ produto.name }}</label>
+            {{ form.productName(id="productName", class="form-control form-control-lg", placeholder="Novo Nome") }}
+        </div>
+
+        <div class="mb-3">
+            <label for="productPrice" class="form-label">Preço Atual: {{ produto.price }}</label>
+            {{ form.productPrice(id="productPrice", class="form-control form-control-lg", placeholder="Novo Preço") }}
+        </div>
+
+        <div class="mb-3">
+            <label for="productCode" class="form-label">Código Atual: {{ produto.code }}</label>
+            {{ form.productCode(id="productCode", class="form-control form-control-lg", placeholder="Novo Código") }}
+        </div>
+
+        <div class="mb-3">
+            <label for="productQuantity" class="form-label">Quantidade Atual: {{ produto.quantity }}</label>
+            {{ form.productQuantity(id="productQuantity", class="form-control form-control-lg", placeholder="Nova Quantidade") }}
+        </div>
+
+        {{ form.submit(class="btn btn-primary") }}
+    </form>
+    {% else %}
+    <h1>Produto não encontrado</h1>
+    {% endif %}
+</div>
+{% endblock %}

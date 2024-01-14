@@ -10,13 +10,16 @@
     <div class="container mt-4">
         <div class="row">
             <div class="col-md-12">
+                <button class="btn btn-primary" onclick="window.location.href='/home'">Voltar</button>
                 <h1>Cliente</h1>
                 <div class="wrapper">
+                    <button class="btn btn-primary" onclick="window.location.href='/new_client'">Novo Cliente</button>
                     <div class="label">Submit your search</div>
                     <div class="searchBar">
                             <form id="searchQueryForm" action="/search_client" method="POST">
-                            <input id="searchQueryInput" type="text" name="searchQueryInput" placeholder="Search" value="" list="name-datalist" />
-                            <datalist id="name-datalist">
+                            {{ form.csrf_token }}
+                            {{ form.clientName(id="searchQueryInput", placeholder="Search", value="", list="nameDatalist") }}
+                                 <datalist id="nameDatalist">
                                 <option value="customer1"></option>
                                 {% for result in results %}
                                     <option value="{{ result }}"></option>
