@@ -10,11 +10,17 @@
     <div class="container mt-4">
         <div class="row">
             <div class="col-md-12">
-                <button class="btn btn-primary" onclick="window.location.href='/home'">Voltar</button>
-                <h1>Cliente</h1>
+                <div>
+                    <div style="margin-bottom: 20px">
+                        <button class="btn btn-primary" onclick="window.location.href='/home'">Voltar</button>
+                    </div>
+                    <div>
+                        <h1 style="margin-left: 30px">Pesquisar Cliente</h1>
+                    </div>
+                </div>
                 <div class="wrapper">
-                    <button class="btn btn-primary" onclick="window.location.href='/new_client'">Novo Cliente</button>
-                    <div class="label">Submit your search</div>
+                    <button class="btn btn-primary" onclick="window.location.href='/new_client'" style="text-align: left">Novo Cliente</button>
+                    <div style="margin-top: 20px;"></div> <!-- Espaçamento adicional -->
                     <div class="searchBar">
                             <form id="searchQueryForm" action="/search_client" method="POST">
                             {{ form.csrf_token }}

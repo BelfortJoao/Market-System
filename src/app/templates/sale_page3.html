@@ -1,6 +1,12 @@
 {% extends "base.html" %}
 
 {% block title %}Sale Page 3{% endblock %}
+{% block stylesheets %}
+    <link rel="icon" type="image/x-icon" href="../../static/assets/favicon.png" />
+    <!-- Core theme CSS (includes Bootstrap)-->
+    <link href="../../../static/css/styles.css" rel="stylesheet" />
+    <link href="../../../static/css/searchbar.css" rel="stylesheet" />
+{% endblock %}
 
 {% block content %}
     <div class="container mt-4">
@@ -10,7 +16,7 @@
                 <p>Price: ${{ product.price }}</p>
                 <p>Available Quantity: {{ product.quantity }}</p>
                 <!-- Adicione o campo de quantidade -->
-                <form method="POST" action="/sale_page3/{{ product.name }}-{{ id }}-{{ kart }}">
+                <form method="POST" action="{{ url_for('sale_page3', name=product.name, id=id, kart=kart) }}">
                     {{ form.csrf_token }}
                     <div class="form-group">
                         {{ form.hidden_tag() }}
@@ -34,26 +40,5 @@
             </div>
         </div>
     </div>
-{% endblock %}
-
-{% block scripts %}
-    <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            var quantityInput = document.getElementById("{{ form.quantity.id }}");
-            var incrementButton = document.getElementById("increment");
-            var decrementButton = document.getElementById("decrement");
-
-            incrementButton.addEventListener("click", function () {
-                quantityInput.value = parseInt(quantityInput.value) + 1;
-            });
-
-            decrementButton.addEventListener("click", function () {
-                var currentValue = parseInt(quantityInput.value);
-                if (currentValue > 0) {
-                    quantityInput.value = currentValue - 1;
-                }
-            });
-        });
-    </script>
 {% endblock %}
 

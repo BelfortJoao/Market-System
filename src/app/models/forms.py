@@ -1,72 +1,72 @@
-#log in form
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, TelField, BooleanField, SubmitField, DecimalField, IntegerField, validators,  HiddenField
-from wtforms.validators import DataRequired, Length, NumberRange
+from wtforms import StringField, PasswordField, SubmitField, DecimalField, IntegerField, HiddenField, TelField, validators
 
-#login form
 class LoginForm(FlaskForm):
-    username = StringField('Username', validators=[DataRequired(), Length(min=2, max=20)])
-    password = PasswordField('Password', validators=[DataRequired(), Length(min=2, max=20)])
+    username = StringField('Nome de Usuário', validators=[validators.DataRequired(), validators.Length(min=2, max=20)], render_kw={"autocomplete": "off"})
+    password = PasswordField('Senha', validators=[validators.DataRequired(), validators.Length(min=2, max=20)], render_kw={"autocomplete": "off"})
     submit = SubmitField('Login')
 
-class clientSearchForm(FlaskForm):
-    clientName = StringField('Client Name', validators=[DataRequired(), Length(min=2, max=20)])
-    submit = SubmitField('Search')
+class ClientSearchForm(FlaskForm):
+    clientName = StringField('Nome do Cliente', validators=[validators.DataRequired(), validators.Length(min=2, max=20)], render_kw={"autocomplete": "off"})
+    submit = SubmitField('Buscar')
 
-class clientAtualizeForm(FlaskForm):
-    clientName = StringField('Client Name')
-    clientAddress = StringField('Client Address')
-    clientCPF = StringField('Client CPF')
-    clientEmail = StringField('Client Email')
-    submit = SubmitField('Atualize')
+class ClientAtualizeForm(FlaskForm):
+    clientName = StringField('Nome do Cliente', render_kw={"autocomplete": "off"})
+    clientAddress = StringField('Endereço do Cliente', render_kw={"autocomplete": "off"})
+    clientCPF = StringField('CPF do Cliente', render_kw={"autocomplete": "off"})
+    clientEmail = StringField('E-mail do Cliente', render_kw={"autocomplete": "off"})
+    submit = SubmitField('Atualizar')
 
 class ProductSearchForm(FlaskForm):
-    productName = StringField('Product Name', validators=[DataRequired(), Length(min=2, max=20)])
-    submit = SubmitField('Search')
+    productName = StringField('Nome do Produto', validators=[validators.DataRequired(), validators.Length(min=2, max=20)], render_kw={"autocomplete": "off"})
+    submit = SubmitField('Buscar')
 
 class ProductUpdateForm(FlaskForm):
-    productName = StringField('Product Name')
-    productPrice = DecimalField('Product Price', [validators.Optional()])
-    productCode = StringField('Product Code')
-    productQuantity = IntegerField('Product Quantity', [validators.Optional()])
-    submit = SubmitField('Update')
+    productName = StringField('Nome do Produto', render_kw={"autocomplete": "off"})
+    productPrice = DecimalField('Preço do Produto', [validators.Optional()])
+    productCode = StringField('Código do Produto', render_kw={"autocomplete": "off"})
+    productQuantity = IntegerField('Quantidade do Produto', [validators.Optional()])
+    productDescription = StringField('Descrição do Produto', render_kw={"autocomplete": "off"})
+    submit = SubmitField('Atualizar')
 
 class ProductCreateForm(FlaskForm):
-    productName = StringField('Product Name', validators=[DataRequired(), Length(min=2, max=20)])
-    productPrice = DecimalField('Product Price', [validators.Optional()])
-    productCode = StringField('Product Code', validators=[DataRequired(), Length(min=2, max=20)])
-    productQuantity = IntegerField('Product Quantity', [validators.Optional()])
-    submit = SubmitField('Create')
+    productName = StringField('Nome do Produto', validators=[validators.DataRequired(), validators.Length(min=2, max=20)], render_kw={"autocomplete": "off"})
+    productPrice = DecimalField('Preço do Produto', [validators.Optional()])
+    productCode = StringField('Código do Produto', validators=[validators.DataRequired(), validators.Length(min=2, max=20)], render_kw={"autocomplete": "off"})
+    productQuantity = IntegerField('Quantidade do Produto', [validators.Optional()])
+    submit = SubmitField('Criar')
 
-class clientCreateForm(FlaskForm):
-    clientName = StringField('Client Name', validators=[DataRequired(), Length(min=2, max=20)])
-    clientAddress = StringField('Client Address', validators=[DataRequired(), Length(min=2, max=20)])
-    clientCPF = StringField('Client CPF', validators=[DataRequired(), Length(min=2, max=20)])
-    clientEmail = StringField('Client Email', validators=[DataRequired(), Length(min=2, max=20)])
-    submit = SubmitField('Create')
+class ClientCreateForm(FlaskForm):
+    clientName = StringField('Nome do Cliente', validators=[validators.DataRequired(), validators.Length(min=2, max=20)], render_kw={"autocomplete": "off"})
+    clientAddress = StringField('Endereço do Cliente', validators=[validators.DataRequired(), validators.Length(min=2, max=20)], render_kw={"autocomplete": "off"})
+    clientCPF = StringField('CPF do Cliente', validators=[validators.DataRequired(), validators.Length(min=2, max=20)], render_kw={"autocomplete": "off"})
+    clientEmail = StringField('E-mail do Cliente', validators=[validators.DataRequired(), validators.Length(min=2, max=20)], render_kw={"autocomplete": "off"})
+    submit = SubmitField('Criar')
 
-class carEditForm(FlaskForm):
+class CarEditForm(FlaskForm):
     id = HiddenField('ID do Carro')
-    modelo = StringField('Modelo do Carro')
+    modelo = StringField('Modelo do Carro', render_kw={"autocomplete": "off"})
     submit_edit = SubmitField('Editar')
     submit_delete = SubmitField('Excluir')
 
-class carAddForm(FlaskForm):
-    modelo = StringField('Modelo do Carro')
-    submit = SubmitField('Create')
+class CarAddForm(FlaskForm):
+    modelo = StringField('Modelo do Carro', render_kw={"autocomplete": "off"})
+    submit = SubmitField('Criar')
 
 class PhoneEditForm(FlaskForm):
     id = HiddenField('ID do Telefone')
-    number = TelField('Número de Telefone')
+    number = TelField('Número de Telefone', render_kw={"autocomplete": "off"})
     submit_edit = SubmitField('Editar')
     submit_delete = SubmitField('Excluir')
 
 class PhoneAddForm(FlaskForm):
-    number = TelField('Número de Telefone')
+    number = TelField('Número de Telefone', render_kw={"autocomplete": "off"})
     submit = SubmitField('Criar')
 
-# form de carrinho de compras
+# Formulário do carrinho de compras
 class CartForm(FlaskForm):
     id = HiddenField('ID do Produto')
-    quantity = IntegerField('Quantidade', [validators.Optional(), NumberRange(min=1, max=100)])
+    quantity = IntegerField('Quantidade', [validators.Optional(), validators.NumberRange(min=1, max=100)])
     submit = SubmitField('Atualizar')
+
+

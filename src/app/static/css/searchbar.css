@@ -24,7 +24,7 @@ body {
 }
 
 #searchQueryInput {
-  width: 100%;
+  width: 150%;
   height: 2.8rem;
   background: #232222;
   outline: none;

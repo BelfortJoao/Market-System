@@ -11,26 +11,29 @@
         <div class="row">
             <div class="col-md-12">
                 <button class="btn btn-primary" onclick="window.location.href='/home'">Voltar</button>
+                <h1 style="margin-top: 35px">Compra</h1>
                 <div class="wrapper">
-                    <div class="label">Submit your search</div>
                     <div class="searchBar">
                             <form id="searchQueryForm" action="/sale_page1" method="POST">
-                            {{ form.csrf_token }}
-                            {{ form.clientName(id="searchQueryInput", placeholder="Search", value="", list="nameDatalist") }}
-                                 <datalist id="nameDatalist">
-                                <option value="customer1"></option>
-                                {% for result in results %}
-                                    <option value="{{ result }}"></option>
-                                {% endfor %}
-                            </datalist>
+                                {{ form.csrf_token }}
+                                {{ form.clientName(id="searchQueryInput", placeholder="Search", value="", list="nameDatalist") }}
+                                     <datalist id="nameDatalist">
+                                    <option value="customer1"></option>
+                                    {% for result in results %}
+                                        <option value="{{ result }}"></option>
+                                    {% endfor %}
+                                </datalist>
                                 {{ form.submit(class="btn btn-primary" , value="Continuar")}}
-                    <button class="btn btn-primary" onclick="window.location.href='/sale_page2/no-client'">Comprar sem Cliente</button>
                             </form>
                     </div>
                 </div>
+                <div class="col-2 mx-auto align-items-center">
+                        <button class="btn btn-primary" onclick="window.location.href='/sale_page2'">Comprar sem Cliente</button>
+                    </div>
             </div>
         </div>
     </div>
+
 {% endblock %}
 
 {% block scripts %}

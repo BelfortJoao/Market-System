@@ -1,11 +1,18 @@
 from app import app, db
-from app.models.forms import LoginForm, clientSearchForm, clientAtualizeForm, ProductSearchForm, ProductUpdateForm, clientCreateForm, carAddForm, carEditForm, PhoneAddForm, PhoneEditForm, CartForm
+# Import statements for form classes
+from app.models.forms import (
+    LoginForm, ClientSearchForm, ClientAtualizeForm,
+    ProductSearchForm, ProductUpdateForm, ProductCreateForm,
+    ClientCreateForm, CarEditForm, CarAddForm,
+    PhoneEditForm, PhoneAddForm, CartForm
+)
 from flask import render_template, flash, redirect, url_for, request, jsonify
 from flask_login import login_user, logout_user, current_user, login_required
 from app.models.tables import User, Product, Car, Phone, Client, Kart, KartItem
 from app import login_manager
-from sqlalchemy import or_
+from sqlalchemy import or_, func
 from sqlalchemy.exc import IntegrityError
+from sqlalchemy.sql.operators import and_
 
 
 @login_manager.user_loader
@@ -52,7 +59,7 @@ def logout():
 @app.route('/sale_page1', methods=['GET', 'POST'])
 @login_required
 def sale_page1():
-    form = clientSearchForm()
+    form = ClientSearchForm()
     # retorna todos clientes do banco de dados
     clients = Client.query.all()
     results = []
@@ -79,30 +86,47 @@ def sale_page1():
         return redirect(url_for('sale_page2', id=id, kart=kart.id))
     return render_template('sale_page1.html', form=form, results=results)
 
-# loads the sale second page sale_page2.html
+# load the sale page (formerly sale_page2 and sale_page2_no_client)
 # requires login
-@app.route('/sale_page2/<int:id>-<kart>', methods=['GET', 'POST'])
+@app.route('/sale_page2/<int:kart>/<int:id>', methods=['GET', 'POST'])
+@app.route('/sale_page2/<int:kart>', methods=['GET', 'POST'])
+@app.route('/sale_page2', methods=['GET', 'POST'])
 @login_required
-def sale_page2(id, kart):
+def sale_page2(kart=None, id=None):
     form = ProductSearchForm()
-    # retorna todos produtos do banco de dados
+
+    # Fetch all products from the database
     products = Product.query.all()
     results = []
-    # para todo kartitem com o id do kart recupera itens
-    kartitems = KartItem.query.filter_by(kart_id=kart).all()
     for product in products:
         results.append(product.name)
         results.append(product.code)
+
+    # Check if a valid kart is provided
+    if kart is None or not Kart.query.get(kart):
+        # If no kart is provided or kart is invalid, create a new one
+        new_kart = Kart(client_id=id, total=0)
+        db.session.add(new_kart)
+        db.session.commit()
+
+        # Set kart to the newly created cart's id
+        kart = new_kart.id
+
+    # Retrieve kart items for display
+    kartitems = KartItem.query.filter_by(kart_id=kart).all()
+    kartinfo = Kart.query.filter_by(id=kart).first()
     if form.validate_on_submit():
         name = form.productName.data
         return redirect(url_for('sale_page3', name=name, id=id, kart=kart))
-    return render_template('sale_page2.html', results=results, id=id, kart=kart, form=form, kartitems=kartitems)
+
+    return render_template('sale_page2.html', results=results, id=id, kart=kart, form=form, kartitems=kartitems, kartinfo=kartinfo)
 
 #loads the sale third page sale_page3.html
 #requires login
-@app.route('/sale_page3/<name>-<int:id>-<int:kart>', methods=['GET', 'POST'])
+@app.route('/sale_page3/<name>/<int:kart>/<int:id>', methods=['GET', 'POST'])
+@app.route('/sale_page3/<name>/<int:kart>', methods=['GET', 'POST'])
 @login_required
-def sale_page3(name, id, kart):
+def sale_page3(name, kart, id=None):
     form = CartForm()  # Use o seu formulário CartForm
 
     # recupera o produto com o nome passado
@@ -110,7 +134,10 @@ def sale_page3(name, id, kart):
 
     if form.validate_on_submit():
         quantidade = form.quantity.data
-
+        #checa se a quantidade é maior que a quantidade em estoque
+        if quantidade > product.quantity:
+            flash('Quantidade maior que a disponível em estoque', 'error')
+            return redirect(url_for('sale_page3', name=name, id=id, kart=kart))
         # recupera o kart
         kart_instance = Kart.query.filter_by(id=kart).first()
 
@@ -129,31 +156,89 @@ def sale_page3(name, id, kart):
         db.session.commit()
 
         flash('Produto adicionado ao carrinho com sucesso!', 'success')
-        return redirect(url_for('sale_page2', id=id, kart=kart_instance.id))
+        if id:
+            return redirect(url_for('sale_page2', id=id, kart=kart_instance.id))
+        else:
+            return redirect(url_for('sale_page2', kart=kart_instance.id))
 
     return render_template('sale_page3.html', product=product, form=form, id=id, kart=kart)
 
 #sele confirm rote
-@app.route('/sale_confirm/<int:id>-<int:kart>', methods=['GET', 'POST'])
+@app.route('/sale_confirm/<int:kart>', methods=['GET', 'POST'])
 @login_required
-def sale_confirm(id, kart):
+def sale_confirm(kart):
     # recupera o kart
     kart_instance = Kart.query.filter_by(id=kart).first()
-
     # seta o total do kart
     kart_instance.confirmed = True
-
     db.session.commit()
+    #remove a quantidade de produtos do estoque
+    kartitems = KartItem.query.filter_by(kart_id=kart).all()
+    for item in kartitems:
+        product = Product.query.filter_by(id=item.product_id).first()
+        product.quantity = product.quantity - item.quantity
+        db.session.commit()
 
     flash('Compra confirmada com sucesso!', 'success')
     return redirect(url_for('sale_page1'))
+
+@app.route('/sale_cancel/<int:kart>', methods=['GET', 'POST'])
+@login_required
+def sale_cancel(kart):
+    # recupera o kart
+    kart_instance = Kart.query.filter_by(id=kart).first()
+    #excli o carrinho
+    db.session.delete(kart_instance)
+    db.session.commit()
+    flash('Compra cancelada com sucesso!', 'success')
+    return redirect(url_for('sale_page1'))
+
+# Carregue a página de histórico de vendas
+@app.route('/sale_history', methods=['GET', 'POST'])
+@login_required
+def sale_history():
+    class Sale:
+        def __init__(self, id, date, total, client):
+            self.id = id
+            self.date = date
+            self.items = []  # Alteração aqui para armazenar itens como tuplas (nome do produto, quantidade)
+            self.total = total
+            self.client = client
+
+    sales = []
+    karts = Kart.query.filter_by(confirmed=True).all()
+
+    for kart in karts:
+        client = Client.query.get(kart.client_id)
+
+        if client is None:
+            client_name = "Nenhum"
+        else:
+            client_name = client.name
+
+        sale = Sale(kart.id, kart.date, kart.total, client_name)
+
+        kartitems = KartItem.query.filter_by(kart_id=kart.id).all()
+
+        for item in kartitems:
+            product = Product.query.get(item.product_id)
+
+            if product is None:
+                app.logger.warning(f"Product with ID {item.product_id} not found.")
+                continue  # Pule o produto se não for encontrado
+
+            sale.items.append((product.name, item.quantity))  # Adição da quantidade ao item
+
+        sales.append(sale)
+
+    return render_template('sale_history.html', sales=sales)
 
 #loads the search client page search_client.html
 #requires login
 @app.route('/search_client', methods=['GET', 'POST'])
 @login_required
 def search_client():
-    form = clientSearchForm()
+    form = ClientSearchForm()
     # retorna todos clientes do banco de dados
     clients = Client.query.all()
     results = []
@@ -168,21 +253,42 @@ def search_client():
     return render_template('search_client.html', results=results, form=form)
 
 # Rota para exibir a página do cliente com base no parâmetro 'name'
+# ... (import statements and other code)
+
 @app.route('/client/<name>', methods=['GET', 'POST'])
 @login_required
 def client(name):
-    form = clientAtualizeForm()
-    car_form = carAddForm()
+    form = ClientAtualizeForm()
+    car_form = CarAddForm()
     phone_form = PhoneAddForm()
     client_cars = []
+    client_phones = []
 
     client = Client.query.filter(or_(Client.name == name, Client.cpf == name)).first()
+    products = Product.query.all()
 
-    if client:
-        client_cars = Car.query.filter_by(client_id=client.id).all()
-        client_phones = Phone.query.filter_by(client_id=client.id).all()
+    itens = (
+        db.session.query(
+            Kart.id.label('cart_id'),
+            Kart.date.label('cart_date'),
+            Kart.total.label('cart_total'),
+            Product.name.label('product_name'),
+            KartItem.quantity.label('item_quantity'),
+            func.sum(KartItem.total).label('item_total')
+        )
+        .join(KartItem, Kart.id == KartItem.kart_id)
+        .join(Product, KartItem.product_id == Product.id)
+        .join(Client, Kart.client_id == Client.id)
+        .filter(Client.id == client.id)  # Separate filter conditions with a comma
+        .group_by(Kart.id, Product.id)
+        .all()
+    ) if client else []
+
+    client_cars = Car.query.filter_by(client_id=client.id).all() if client else []
+    client_phones = Phone.query.filter_by(client_id=client.id).all() if client else []
 
     if form.validate_on_submit() and form.submit.data:
+        # Update client information
         if form.clientName.data:
             client.name = form.clientName.data
         if form.clientAddress.data:
@@ -195,36 +301,7 @@ def client(name):
         flash('Cliente atualizado com sucesso!')
         return redirect(url_for('search_client'))
 
-    #adiciona um novo telefone
-    if phone_form.validate_on_submit() and phone_form.submit.data:
-        try:
-            phone = Phone(
-                number=phone_form.number.data,
-                client_id=client.id
-            )
-            db.session.add(phone)
-            db.session.commit()
-            flash('Telefone adicionado com sucesso!')
-            return redirect(url_for('client', name=name))
-        except IntegrityError as e:
-            db.session.rollback()
-            flash(f"Erro ao adicionar telefone: {str(e)}", 'error')
-
-    if car_form.validate_on_submit() and car_form.submit.data:
-        try:
-            carro = Car(
-                name=car_form.modelo.data,
-                client_id=client.id
-            )
-            db.session.add(carro)
-            db.session.commit()
-            flash('Carro adicionado com sucesso!')
-            return redirect(url_for('client', name=name))
-        except IntegrityError as e:
-            db.session.rollback()
-            flash(f"Erro ao adicionar carro: {str(e)}", 'error')
-
-    return render_template('client.html', cliente=client, form=form, carros=client_cars, car_form=car_form, phone_form=phone_form, phones=client_phones)
+    return render_template('client.html', cliente=client, form=form, carros=client_cars, car_form=car_form, phone_form=phone_form, phones=client_phones, itens=itens)
 
 #add phone page
 @app.route('/client/<name>/add_phone', methods=['POST'])
@@ -254,7 +331,7 @@ def add_phone(name):
 @app.route('/client/<name>/add_car', methods=['POST'])
 @login_required
 def add_car(name):
-    car_form = carAddForm()
+    car_form = CarAddForm()
 
     client = Client.query.filter(or_(Client.name == name, Client.cpf == name)).first()
 
@@ -277,7 +354,7 @@ def add_car(name):
 @app.route('/new_client', methods=['GET', 'POST'])
 @login_required
 def new_client():
-    form = clientCreateForm()
+    form = ClientCreateForm()
 
     if form.validate_on_submit():
         try:
@@ -367,6 +444,8 @@ def product(name):
             product.name = form.productName.data
         if form.productCode.data:
             product.code = form.productCode.data
+        if form.productDescription.data:
+            product.description = form.productDescription.data
         db.session.commit()
         return redirect(url_for('search_product'))
 
@@ -397,7 +476,7 @@ def delete_product(name):
 @app.route('/edit_car/<int:car_id>', methods=['GET', 'POST'])
 @login_required
 def edit_car(car_id):
-    form = carEditForm()
+    form = CarEditForm()
     car_to_edit = Car.query.filter_by(id=car_id).first()
     id = car_to_edit.client_id
     #pega o nome do cliente baseado no id

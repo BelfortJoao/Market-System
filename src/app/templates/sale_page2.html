@@ -3,21 +3,21 @@
 {% block title %}Produto{% endblock %}
 
 {% block stylesheets %}
-    <link href="../static/css/searchbar.css" rel="stylesheet" />
+    <link rel="icon" type="image/x-icon" href="../../static/assets/favicon.png" />
+    <!-- Core theme CSS (includes Bootstrap)-->
+    <link href="../../static/css/styles.css" rel="stylesheet" />
+    <link href="../../static/css/searchbar.css" rel="stylesheet" />
 {% endblock %}
 
 {% block content %}
     <div class="container mt-4">
         <div class="row">
             <div class="col-md-12">
-                <button class="btn btn-primary" onclick="window.location.href='/sale_page1'">Voltar</button>
-                <h1>Produto</h1>
+                 <h1>Selecionar Produto</h1>
                 <div class="wrapper">
-                    #botão de confirmar
-                    <button type="submit" name="submit_item" class="btn btn-primary" onclick="window.location.href='/sale_confirm/{{id}}-{{kart}}'">Confirmar</button>
                     <div class="label">Pesquise seu produto</div>
                     <div class="searchBar">
-                        <form id="searchQueryForm" action="/sale_page2/{{ id }}-{{ kart }}" method="POST">
+                        <form id="searchQueryForm" action="{% if not id %}/sale_page2/{{ kart }}{% else %}/sale_page2/{{ kart }}/{{ id }}{% endif %}" method="POST">
                             {{ form.csrf_token }}
                             {{ form.productName(id="searchQueryInput", placeholder="Search", value="", list="nameDatalist") }}
                             <datalist id="nameDatalist">
@@ -33,15 +33,30 @@
                         </form>
                     </div>
                 </div>
+                <div class="col-6 mx-auto align-items-center">
+                    <div class="row" >
+                        <div class="col-md">
+                            <a href="/sale_confirm/{{ kart }}" class="btn btn-primary">Confirmar Compra</a>
+                        </div>
+                        <div class="col-md">
+                            <button class="btn btn-danger" onclick="window.location.href='/sale_cancel/{{ kart }}'">Cancelar</button>
+                        </div>
+                    </div>
+                </div>
                 <!-- Display Kart Items -->
-                {% if kartitems %}
-                    <h2>Kart Items</h2>
+                <div class="col-6 mx-auto align-items-center" style="margin-top: 50px; margin-bottom: 50px">
+                    <h2>Carrinho</h2>
+                    <h8>Data-Hora: {{kartinfo.date}}</h8>
+                    <h4>Itens: </h4>
                     <ul>
                         {% for kartitem in kartitems %}
-                            <li>{{ kartitem.product.name }} - Quantity: {{ kartitem.quantity }}</li>
+                            <li>{{kartitem.product.code}}|{{ kartitem.product.name }} - Quantidade: {{ kartitem.quantity }} - Preço: R${{kartitem.total}}</li>
                         {% endfor %}
                     </ul>
-                {% endif %}
+                    <div>
+                        <h3>Total: R${{ kartinfo.total }}</h3>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -50,3 +65,4 @@
 {% block scripts %}
     <script src="../static/js/autocomplete.js"></script>
 {% endblock %}
+
