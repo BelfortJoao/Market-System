@@ -68,10 +68,11 @@ def sale_page1():
         results.append(client.name)
         results.append(client.cpf)
 
+    #name pode ser ou o id ou o real name tenta achar o cliente pelo name e pelo id caso n ache retorna erro
     if form.validate_on_submit():
         name = form.clientName.data
         if name:
-            client = Client.query.filter_by(name=name).first()
+            client = Client.query.filter(or_(Client.name == name, Client.cpf == name)).first()
         if client:
             id = client.id
         else:
